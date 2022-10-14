@@ -46,5 +46,16 @@ defmodule HelloWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+  plug :introspect #Create my own plug
   plug HelloWeb.Router
+
+  def introspect(conn,_opts) do
+    IO.puts("""
+    Here I'm into my testing plug :D
+    Verb: #{inspect(conn.method)}
+    Host: #{inspect(conn.host)}
+    Headers: #{inspect(conn.req_headers)}
+    """)
+    conn #Return the input struct
+  end
 end

@@ -8,6 +8,7 @@ defmodule HelloWeb.Router do
     plug :put_root_layout, {HelloWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug HelloWeb.Plugs.Locale, "en" # Add my plug function
   end
 
   pipeline :api do
@@ -17,7 +18,9 @@ defmodule HelloWeb.Router do
   scope "/", HelloWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", PageController, :index # The index endpoint will be handle by index controller function
+    get "/hello", HelloController, :index # The hello endpoint will be handler by index function in HelloController module
+    get "/hello/:messenger", HelloController, :show # The endpoint will be handler by show function in HelloController module
   end
 
   # Other scopes may use custom stacks.
