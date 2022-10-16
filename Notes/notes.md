@@ -305,4 +305,124 @@ defmodule HelloWeb.Router do
 end
 ```
 
-# 
+# Controllers
+
+Controllers are modules that has functions which will be execute when its specific endpoint matches with the request endpoint. Here is the default controller and function inside it:
+
+```elixir
+defmodule HelloWeb.PageController do #This is the controller 
+  use HelloWeb, :controller
+
+  def index(conn, _params) do #this is the action
+    render(conn, "index.html")
+  end
+end
+```
+
+(Notice that the functions inside a controller are called actions and must be called equal as the desired endpoint to execute this function)
+
+It’s recommended to use the classic names of actions, like this:
+
+- index: renders a list of all items of the given resource type
+- show:  renders an individual item by ID
+- new:  renders a form for creating a new item
+- create:  receives parameters for one new item and saves it in a data store
+- edit:  retrieves an individual item by ID and displays it in a form for editing
+- update:  receives parameters for one edited item and saves the item to a data store
+- delete:  receives an ID for an item to be deleted and deletes it from a data store
+
+## Actions (Controller Functions)
+
+In phoenix the actions receive two arguments `conn` and `params` , now I going to see what does each ones:
+
+### conn
+
+I a struct that contains request information such as the host name, the path elements, the port, , string query and more information received by the middleware Phoenix plug.
+
+### params
+
+This is a map that contains the http request parameters (I bet it could be headers). It’s recommended do use pattern matching to get the data and store in a simple package or structure for easy handler.
+
+## Renderization
+
+### Render HTML Response
+
+```elixir
+defmodule HelloWeb.HelloController do
+  ...
+
+  def show(conn, %{"messenger" => messenger}) do
+    render(conn, "show.html", messenger: messenger)
+  end
+end
+```
+
+If I need to pass information to the template using the render function I can do it thought the third argument, a keyword list with the data (as the previous example)
+
+Another option is use the Plug.Conn.assign function that receive the conn argument and return another conn with the information. Here is an example:
+
+```elixir
+def show(conn, %{"messenger" => messenger}) do
+    conn
+    |> Plug.Conn.assign(:messenger, messenger)
+    |> render("show.html")
+  end
+```
+
+### Plane Text Response
+
+```elixir
+def show(conn, %{"messenger" => messenger}) do
+    text(conn, "This is the input message #{messenger}") #Render just a plane text
+  end
+```
+
+### JSON Response
+
+```elixir
+def show(conn, %{"messenger" => messenger}) do
+    json(conn, %{id: messenger}) #Response with a json data (must be a map)
+  end
+```
+
+## Send Response
+
+If I don’t want to send a rendering option or anything of the previous response I can send a specific code using the `send_resp` function as the following example:
+
+```elixir
+def index(conn, _params) do
+  send_resp(conn, 201, "")
+end
+```
+
+### Set the http status response
+
+```elixir
+def index(conn, _params) do
+  conn
+  |> put_status(202) #set status 202
+  |> render("index.html")
+end
+```
+
+### Set the content type
+
+```elixir
+def index(conn, _params) do
+  conn
+  |> put_resp_content_type("text/xml") #set the content type
+  |> render("index.xml", content: some_xml_content)
+end
+```
+
+## Redirect
+
+If I want to redirect to another URL I can use the function `redirect` here is an example:
+
+```elixir
+def redirect_test(conn, _params) do
+    redirect(conn,to: "/hello/Andres") #Redirect to the /hello/Andres endpoint
+  end
+```
+
+Notice the `to:` this means that I going to redirect to an internal URL. If I want to redirect to an external URL I should use `external:` instead of to

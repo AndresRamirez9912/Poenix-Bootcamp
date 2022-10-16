@@ -2,7 +2,7 @@ defmodule HelloWeb.Router do
   use HelloWeb, :router
 
   pipeline :browser do
-    plug :accepts, ["html"]
+    plug :accepts, ["html", "text"]
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, {HelloWeb.LayoutView, :root}
@@ -21,6 +21,7 @@ defmodule HelloWeb.Router do
     get "/", PageController, :index # The index endpoint will be handle by index controller function
     get "/hello", HelloController, :index # The hello endpoint will be handler by index function in HelloController module
     get "/hello/:messenger", HelloController, :show # The endpoint will be handler by show function in HelloController module
+    get "/redirect_test", PageController, :redirect_test #Create an endpoint to test the redirect function
   end
 
   # Other scopes may use custom stacks.
