@@ -426,3 +426,84 @@ def redirect_test(conn, _params) do
 ```
 
 Notice the `to:` this means that I going to redirect to an internal URL. If I want to redirect to an external URL I should use `external:` instead of to
+
+# Views and templates
+
+The views allow render the request response (a API response or a visual response)
+
+## Rendering templates
+
+Each `controller` requires a `pageView` to render the template inside the `lib/hello_web/templates/page/` folder. And the name need to be the same endpoint, also there are three types of pageview
+
+### 1. LayoutView
+
+this type has the following structure
+
+```elixir
+defmodule HelloWeb.LayoutView do
+  use HelloWeb, :view
+end
+```
+
+Addtionally, I can create functions in my View and execute it (or call them) inside my template. Here is an example:
+
+(Vire code)
+
+```elixir
+defmodule HelloWeb.LayoutView do
+  use HelloWeb, :view
+
+  def title() do
+    "Awesome New Title!"
+  end
+end
+```
+
+(Layout code)
+
+```elixir
+<title><%= title() %></title>
+```
+
+Notice the <%= %> expression, this is the heex syntax which means that inside I going to call elixir functions or input parameters. Here is how I should do it:
+
+- `<title><%= title() %></title>`: Call the function title
+- `<title><%= @my_tittle %></title>` Call an input parameter called my_tittle
+
+## Sharing views and templates
+
+I can render another template / layout inside my pages. This is something like a Angular module inside another Angular module, I can render HTML code inside another HTML code. Here is how can a I do that
+
+```elixir
+<%= Phoenix.View.render(HelloWeb.PageView, "test.html", message: "Hello from the other layout!") %>
+```
+
+Here is how I made that. I need to call the render/3 which receives
+
+- View that render it (optional If the father render view will render the son layout)
+- File name
+- Input data (optional)
+
+### Rendering JSON
+
+I can use the render function to render json responses, here is an example of this:
+
+```elixir
+defmodule HelloWeb.PageController do
+  use HelloWeb, :controller
+
+  def show(conn, _params) do
+    page = %{title: "foo"} #This is tehdata to send to the layout 
+
+    render(conn, "show.json", page: page) #render my sho.json file 
+  end
+
+  def index(conn, _params) do
+    pages = [%{title: "foo"}, %{title: "bar"}] %this json will be  send to my page 
+
+    render(conn, "index.json", pages: pages) #render the json and send the page map
+  end
+end
+```
+
+Remember that I can send data to the layout using the render/3 function and in Elixir json data could be handler by maps.
