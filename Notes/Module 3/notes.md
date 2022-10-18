@@ -1,3 +1,5 @@
+
+
 # Ecto
 
 Ecto is a Phoenix tool to have data validation and persistence using common DBs
@@ -67,3 +69,28 @@ def changeset(user, attrs) do
 	  |> validate_format(:email, ~r/@/) #check the format of email column
   end
 ```
+
+# Context (Write API to handle DB)
+
+Context are modules that allow handler my project and functionalities because If  I want to use any module I don’t need to use the specific module I can use a context that handle all modules. It’s for simplicity.
+
+When I want to create a context I should follow this structure
+
+```elixir
+mix phnx.generate.context Context_name Schema_name table_name table_properties
+```
+
+Where:
+
+- Context_name: The name of the context
+- Schemma_name: Name of the endpoint and schema
+- schemma_name:  Name of the schema
+- table_properties Description of the table schema (columns, fields, etc)
+
+Here is an example:
+
+```elixir
+mix phx.gen.context ShoppingCart Cart carts title:string:unique 
+```
+
+In this example I created a context called ShoppingCart, so my module will be `Hello.ShoppingCart.Cart`  and the schema is `carts`
