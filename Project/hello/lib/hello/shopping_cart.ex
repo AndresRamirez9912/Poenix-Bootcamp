@@ -1,5 +1,4 @@
 defmodule Hello.ShoppingCart do
-
   @moduledoc """
   The ShoppingCart context.
   """
@@ -50,39 +49,10 @@ defmodule Hello.ShoppingCart do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_cart(user_uuid) do
-    %Cart{user_uuid: user_uuid}
-    |> Cart.changeset(%{})
+  def create_cart(attrs \\ %{}) do
+    %Cart{}
+    |> Cart.changeset(attrs)
     |> Repo.insert()
-    |> case do
-      {:ok, cart} -> {:ok, reload_cart(cart)}
-      {:error, changeset} -> {:error, changeset}
-    end
-  end
-
-  defp reload_cart(%Cart{} = cart), do: get_cart_by_user_uuid(cart.user_uuid)
-
-  def add_item_to_cart(%Cart{} = cart, %Catalog.Product{} = product) do
-    %CartItem{quantity: 1, price_when_carted: product.price}
-    |> CartItem.changeset(%{})
-    |> Ecto.Changeset.put_assoc(:cart, cart)
-    |> Ecto.Changeset.put_assoc(:product, product)
-    |> Repo.insert(
-      on_conflict: [inc: [quantity: 1]],
-      conflict_target: [:cart_id, :product_id]
-    )
-  end
-
-  def remove_item_from_cart(%Cart{} = cart, product_id) do
-    {1, _} =
-      Repo.delete_all(
-        from(i in CartItem,
-          where: i.cart_id == ^cart.id,
-          where: i.product_id == ^product_id
-        )
-      )
-
-    {:ok, reload_cart(cart)}
   end
 
   @doc """
