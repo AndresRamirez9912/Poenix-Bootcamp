@@ -80,3 +80,7 @@ Finally I can run test in a random order using the seed and the following comman
 ```elixir
 mix test --seed 401472
 ```
+
+# DataCases
+
+This is a file and a tool to test my request and DB operations without affect the DB, because when a test finishes the transactions that I made were rollback.
