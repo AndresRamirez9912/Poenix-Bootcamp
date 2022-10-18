@@ -9,6 +9,31 @@ defmodule HelloWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug HelloWeb.Plugs.Locale, "en" # Add my plug function
+    plug :fetch_current_user
+    plug :fetch_current_cart
+  end
+
+  defp fetch_current_user(conn, _) do
+    if user_uuid = get_session(conn, :current_uuid) do
+      assign(conn, :current_uuid, user_uuid)
+    else
+      new_uuid = Ecto.UUID.generate()
+
+      conn
+      |> assign(:current_uuid, new_uuid)
+      |> put_session(:current_uuid, new_uuid)
+    end
+  end
+
+  alias Hello.ShoppingCart
+
+  def fetch_current_cart(conn, _opts) do
+    if cart = ShoppingCart.get_cart_by_user_uuid(conn.assigns.current_uuid) do
+      assign(conn, :cart, cart)
+    else
+      {:ok, new_cart} = ShoppingCart.create_cart(conn.assigns.current_uuid)
+      assign(conn, :cart, new_cart)
+    end
   end
 
   pipeline :api do
@@ -22,6 +47,13 @@ defmodule HelloWeb.Router do
     get "/hello", HelloController, :index # The hello endpoint will be handler by index function in HelloController module
     get "/hello/:messenger", HelloController, :show # The endpoint will be handler by show function in HelloController module
     get "/redirect_test", PageController, :redirect_test #Create an endpoint to test the redirect function
+    get "/cart", CartController, :show
+
+    put "/cart", CartController, :update
+
+    resources "/products", ProductController #Create the resource for my E-comerce
+    resources "/cart_items", CartItemController, only: [:create, :delete]
+
   end
 
   # Other scopes may use custom stacks.
